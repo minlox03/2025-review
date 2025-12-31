@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025 스트렝스모임 회고록</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
+
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.8);
+            --text-color: #e2e8f0;
+            --accent-color: #fbbf24;
+            --secondary-accent: #38bdf8;
+            --input-bg: rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text-color);
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0; padding: 0;
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: flex-start;
+        }
+
+        .snowflake { position: fixed; top: -10px; color: #fff; pointer-events: none; animation: fall linear infinite; z-index: 1; }
+        @keyframes fall { to { transform: translateY(110vh); } }
+
+        .container {
+            width: 95%; max-width: 600px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 30px; border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            z-index: 10; text-align: center;
+            margin: 40px 10px; position: relative;
+        }
+
+        h1, h2, h3 { font-family: 'Noto Serif KR', serif; color: var(--accent-color); }
+        .subtitle { color: #94a3b8; margin-bottom: 30px; font-size: 0.9rem; }
+
+        /* 입력 폼 */
+        .question-card { background: rgba(0,0,0,0.2); padding: 18px; border-radius: 15px; margin-bottom: 20px; text-align: left; }
+        .question-label { display: block; margin-bottom: 8px; font-weight: bold; color: #f1f5f9; font-size: 0.95rem; }
+        textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: var(--input-bg); color: white; font-size: 1rem; box-sizing: border-box; outline: none; font-family: inherit; }
+
+        /* 버튼 */
+        .btn { background: var(--accent-color); color: #0f172a; font-weight: bold; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-size: 1rem; margin-top: 10px; transition: 0.3s; }
+        .btn:hover { opacity: 0.9; transform: scale(0.98); }
+        .btn-sub { background: rgba(255,255,255,0.1); color: white; font-size: 0.8rem; padding: 8px; margin-top: 5px; }
+
+        /* 탭 및 메뉴 */
+        .tab-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 12px; border-radius: 10px; cursor: pointer; background: rgba(0,0,0,0.3); color: #64748b; border: 1px solid transparent; }
+        .tab-btn.active { background: rgba(251, 191, 36, 0.2); color: var(--accent-color); border-color: var(--accent-color); font-weight: bold; }
+
+        .grid-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .grid-item { background: rgba(255,255,255,0.05); padding: 15px 5px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; border: 1px solid rgba(255,255,255,0.1); }
+        .grid-item:hover { background: var(--accent-color); color: #0f172a; }
+
+        /* 코멘트 영역 */
+        .comment-section { margin-top: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px; }
+        .comment-item { font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 5px 0; display: flex; justify-content: space-between; }
+        .comment-user { color: var(--secondary-accent); font-weight: bold; margin-right: 8px; }
+        .comment-input-group { display: flex; gap: 5px; margin-top: 8px; }
+        .comment-input { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 4px; padding: 5px; font-size: 0.8rem; }
+        .comment-btn { background: var(--secondary-accent); border: none; color: white; border-radius: 4px; padding: 0 10px; cursor: pointer; font-size: 0.8rem; }
+
+        .hidden { display: none; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* 초기화 버튼 */
+        .reset-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #475569; cursor: pointer; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+    <div id="snow-container"></div>
+    <div class="container fade-in">
+        <button class="reset-btn" onclick="resetData()" title="데이터 초기화">⚙️</button>
+        
+        <div id="page-login">
+            <h1>2025 회고록</h1>
+            <p class="subtitle">스트렝스모임 연말 기록</p>
+            <input type="text" id="username" placeholder="이름을 입력하세요" style="width:100%; padding:15px; border-radius:12px; border:none; background:var(--input-bg); color:white; font-size:1.2rem; text-align:center; box-sizing:border-box;">
+            <button class="btn" onclick="checkUser()">입장하기</button>
+        </div>
+
+        <div id="page-quiz" class="hidden">
+            <h2 id="display-name"></h2>
+            <div id="quiz-container"></div>
+            <button class="btn" onclick="saveAndGo()">완료 및 결과 보기</button>
+        </div>
+
+        <div id="page-dashboard" class="hidden">
+            <h2>모두의 2025년</h2>
+            <div class="tab-container">
+                <div class="tab-btn active" id="tab-person" onclick="switchTab('person')">사람별</div>
+                <div class="tab-btn" id="tab-question" onclick="switchTab('question')">문항별</div>
+            </div>
+            <div id="menu-person" class="grid-menu"></div>
+            <div id="menu-question" class="hidden"></div>
+            <button class="btn btn-sub" onclick="goBackToQuiz()">내 회고 수정하기</button>
+        </div>
+
+        <div id="page-detail" class="hidden">
+            <h3 id="detail-title"></h3>
+            <div id="detail-content-list"></div>
+            <button class="btn btn-sub" onclick="changePage('page-dashboard')">뒤로 가기</button>
+        </div>
+    </div>
+
+    <script>
+        const members = ["경빈", "민욱", "왕근", "재규", "정민", "무철", "재호", "건욱", "한슬", "국영", "병선"];
+        const questions = ["올해 가장 좋았던 카페", "올해의 best 소비", "올해의 worst 소비", "가장 자주 들은 올해의 노래", "올해 가장 인상 깊었던 영화", "올해 가장 인상 깊었던 책 혹은 구절", "올해의 선물 (가장 감동 받은 선물)", "이번 연도의 가장 큰 도전", "반면에 이번 연도에 실패한 것", "2025년 중 한순간으로 돌아간다면?", "이번 연도에 만난 새로운 인연", "올해 먹었던 것 중 가장 맛있었던 것은?", "올해 나의 가장 큰 고민", "나 자신이 작년에 비해 변화한 점", "올해 가장 힘들었던 순간 / 극복 방법", "올해 눈물을 흘린 적이 있었다면?", "올해 찍은 사진 중 마음에 드는 것", "올해 새로 발견한 취미나 관심사", "올해 나에게 큰 영향을 준 인물", "올해 느꼈던 감사한 일 3가지", "올해 내가 가장 빠진 밈 / 콘텐츠", "올해 나를 위해 한 가장 큰 투자", "올해의 소확행", "올해 가장 기억에 남는 순간", "올해 깨달은 교훈", "아, 이건 하길 잘했다!", "내년에는 꼭 이루고 싶은 것", "올해를 한 문장으로 표현한다면?", "2025년의 나에게 칭찬 한 마디", "2026년의 나에게 해주고 싶은 말"];
+
+        let currentUser = "";
+
+        function createSnow() {
+            const container = document.getElementById('snow-container');
+            for(let i=0; i<30; i++){
+                const snow = document.createElement('div');
+                snow.className = 'snowflake'; snow.innerHTML = '❄';
+                snow.style.left = Math.random() * 100 + 'vw';
+                snow.style.animationDuration = (Math.random() * 3 + 5) + 's';
+                snow.style.opacity = Math.random();
+                container.appendChild(snow);
+            }
+        }
+        createSnow();
+
+        function checkUser() {
+            const name = document.getElementById('username').value.trim();
+            if(members.includes(name)) {
+                currentUser = name;
+                document.getElementById('display-name').innerText = currentUser + "님의 회고";
+                
+                // 이미 작성한 데이터가 있으면 바로 결과창으로, 아니면 퀴즈창으로
+                if(localStorage.getItem('2025_review_' + currentUser)) {
+                    initDashboard();
+                    changePage('page-dashboard');
+                } else {
+                    renderQuiz();
+                    changePage('page-quiz');
+                }
+            } else { alert("멤버 이름을 확인해주세요!"); }
+        }
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = "";
+            const saved = JSON.parse(localStorage.getItem('2025_review_' + currentUser)) || {};
+            questions.forEach((q, i) => {
+                container.innerHTML += `<div class="question-card"><label class="question-label">${i+1}. ${q}</label>
+                <textarea id="ans-${i}">${saved[i] || ""}</textarea></div>`;
+            });
+        }
+
+        function saveAndGo() {
+            const answers = {};
+            questions.forEach((_, i) => answers[i] = document.getElementById(`ans-${i}`).value);
+            localStorage.setItem('2025_review_' + currentUser, JSON.stringify(answers));
+            initDashboard();
+            changePage('page-dashboard');
+        }
+
+        function goBackToQuiz() {
+            renderQuiz();
+            changePage('page-quiz');
+        }
+
+        function initDashboard() {
+            const pMenu = document.getElementById('menu-person');
+            pMenu.innerHTML = "";
+            members.forEach(m => {
+                const item = document.createElement('div');
+                item.className = 'grid-item';
+                item.innerText = m;
+                item.onclick = () => showDetailByPerson(m);
+                pMenu.appendChild(item);
+            });
+
+            const qMenu = document.getElementById('menu-question');
+            qMenu.innerHTML = "";
+            questions.forEach((q, i) => {
+                const item = document.createElement('div');
+                item.className = 'grid-item';
+                item.style.gridColumn = "span 3";
+                item.style.textAlign = "left";
+                item.innerText = (i+1) + ". " + q;
+                item.onclick = () => showDetailByQuestion(i);
+                qMenu.appendChild(item);
+            });
+        }
+
+        function showDetailByPerson(member) {
+            const data = JSON.parse(localStorage.getItem('2025_review_' + member));
+            const container = document.getElementById('detail-content-list');
+            document.getElementById('detail-title').innerText = member + "님의 기록";
+            container.innerHTML = "";
+
+            if(!data) {
+                container.innerHTML = "<p>아직 작성하지 않았습니다.</p>";
+            } else {
+                questions.forEach((q, i) => {
+                    const commentKey = `comments_${member}_${i}`;
+                    const comments = JSON.parse(localStorage.getItem(commentKey)) || [];
+                    
+                    let commentHtml = `<div class="comment-section" id="section-${member}-${i}">`;
+                    comments.forEach(c => {
+                        commentHtml += `<div class="comment-item"><span><span class="comment-user">${c.user}:</span>${c.text}</span></div>`;
+                    });
+                    commentHtml += `
+                        <div class="comment-input-group">
+                            <input type="text" class="comment-input" id="input-${member}-${i}" placeholder="코멘트 남기기...">
+                            <button class="comment-btn" onclick="addComment('${member}', ${i})">전송</button>
+                        </div>
+                    </div>`;
+
+                    container.innerHTML += `
+                        <div class="question-card">
+                            <div style="color:var(--accent-color); font-size:0.8rem; margin-bottom:5px;">Q. ${q}</div>
+                            <div style="font-size:1rem; line-height:1.6;">${data[i] || "-"}</div>
+                            ${commentHtml}
+                        </div>`;
+                });
+            }
+            changePage('page-detail');
+        }
+
+        function addComment(targetMember, qIndex) {
+            const input = document.getElementById(`input-${targetMember}-${qIndex}`);
+            const text = input.value.trim();
+            if(!text) return;
+
+            const commentKey = `comments_${targetMember}_${qIndex}`;
+            const comments = JSON.parse(localStorage.getItem(commentKey)) || [];
+            comments.push({ user: currentUser, text: text });
+            localStorage.setItem(commentKey, JSON.stringify(comments));
+            
+            showDetailByPerson(targetMember); // 화면 갱신
+        }
+
+        function showDetailByQuestion(qIdx) {
+            const container = document.getElementById('detail-content-list');
+            document.getElementById('detail-title').innerText = questions[qIdx];
+            container.innerHTML = "";
+            members.forEach(m => {
+                const data = JSON.parse(localStorage.getItem('2025_review_' + m));
+                container.innerHTML += `<div class="question-card"><div class="question-label">${m}</div><div>${(data && data[qIdx]) ? data[qIdx] : "미작성"}</div></div>`;
+            });
+            changePage('page-detail');
+        }
+
+        function switchTab(mode) {
+            document.getElementById('tab-person').classList.toggle('active', mode==='person');
+            document.getElementById('tab-question').classList.toggle('active', mode==='question');
+            document.getElementById('menu-person').classList.toggle('hidden', mode!=='person');
+            document.getElementById('menu-question').classList.toggle('hidden', mode!=='question');
+        }
+
+        function changePage(id) {
+            ['page-login', 'page-quiz', 'page-dashboard', 'page-detail'].forEach(p => document.getElementById(p).classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        function resetData() {
+            if(confirm("정말로 모든 데이터를 초기화할까요? (작성한 회고와 코멘트가 모두 사라집니다)")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
