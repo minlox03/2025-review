@@ -9,160 +9,65 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.85);
-            --text-color: #e2e8f0;
-            --accent-color: #fbbf24;
-            --secondary-accent: #38bdf8;
-            --input-bg: rgba(0, 0, 0, 0.4);
-        }
-        body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: var(--text-color);
-            font-family: 'Noto Sans KR', sans-serif;
-            margin: 0; padding: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-        }
+        :root { --bg-color: #0f172a; --card-bg: rgba(30, 41, 59, 0.85); --text-color: #e2e8f0; --accent-color: #fbbf24; --secondary-accent: #38bdf8; --input-bg: rgba(0, 0, 0, 0.4); }
+        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: var(--text-color); font-family: 'Noto Sans KR', sans-serif; margin: 0; padding: 0; min-height: 100vh; display: flex; justify-content: center; }
         .snowflake { position: fixed; top: -10px; color: #fff; pointer-events: none; animation: fall linear infinite; z-index: 1; }
         @keyframes fall { to { transform: translateY(110vh); } }
-        .container {
-            width: 95%; max-width: 600px;
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            padding: 30px; border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.1);
-            z-index: 10; text-align: center;
-            margin: 40px 10px; position: relative;
-        }
-        h1, h2, h3 { font-family: 'Noto Serif KR', serif; color: var(--accent-color); }
-        .question-card {
-            background: rgba(0,0,0,0.25); padding: 18px; border-radius: 15px; margin-bottom: 20px;
-            text-align: left; border: 1px solid rgba(255,255,255,0.05);
-            position: relative; /* 파일 업로드 버튼 위치 조정을 위해 */
-        }
-        .question-label { display: block; margin-bottom: 10px; font-weight: bold; color: #f1f5f9; font-size: 1rem; }
-        textarea {
-            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);
-            background: var(--input-bg); color: white; font-size: 1rem; box-sizing: border-box;
-            outline: none; font-family: inherit; min-height: 80px; resize: vertical;
-        }
-        /* 파일 업로드 버튼 */
-        .file-upload-wrapper {
-            position: relative; display: inline-block; margin-top: 10px;
-            cursor: pointer; background: rgba(255,255,255,0.1); padding: 8px 12px;
-            border-radius: 8px; font-size: 0.85rem; color: #fff;
-            transition: background 0.2s ease;
-        }
-        .file-upload-wrapper:hover { background: rgba(255,255,255,0.2); }
-        .file-upload-wrapper input[type="file"] {
-            position: absolute; left: 0; top: 0; width: 100%; height: 100%;
-            opacity: 0; cursor: pointer;
-        }
-        .uploaded-img-preview {
-            max-width: 80px; max-height: 80px; margin-top: 10px; border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.2); cursor: pointer;
-            vertical-align: middle; margin-left: 10px;
-        }
-        .upload-status { font-size: 0.8rem; color: #94a3b8; margin-top: 5px; display: block; }
-        .uploaded-image-display { max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px; cursor: pointer; }
-        /* 프로필 사진 업로드 */
-        .profile-upload-area { margin-bottom: 20px; }
-        .profile-upload-area img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; }
-        .profile-upload-area .file-upload-wrapper { padding: 6px 10px; font-size: 0.8rem; }
-        .profile-img-thumb { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; margin-right: 8px; vertical-align: middle; border: 1px solid rgba(255,255,255,0.3); }
-
+        .container { width: 95%; max-width: 600px; background: var(--card-bg); backdrop-filter: blur(20px); padding: 30px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); z-index: 10; text-align: center; margin: 40px 10px; position: relative; }
+        
+        /* 사진 업로드 버튼 스타일 */
+        .img-upload-btn { background: rgba(255,255,255,0.1); border: 1px dashed rgba(255,255,255,0.3); color: white; padding: 8px; border-radius: 8px; cursor: pointer; display: inline-block; margin-top: 10px; font-size: 0.8rem; }
+        .img-preview-small { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-top: 10px; cursor: pointer; border: 1px solid var(--accent-color); }
+        .profile-img-main { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-color); margin: 20px auto; display: block; background: #334155; }
+        .profile-img-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; margin-right: 10px; border: 1px solid var(--accent-color); }
+        
+        /* 나머지 스타일 */
+        .question-card { background: rgba(0,0,0,0.25); padding: 18px; border-radius: 15px; margin-bottom: 20px; text-align: left; border: 1px solid rgba(255,255,255,0.05); }
+        .question-label { display: block; margin-bottom: 10px; font-weight: bold; color: #f1f5f9; }
+        textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: var(--input-bg); color: white; font-size: 1rem; box-sizing: border-box; outline: none; min-height: 80px; resize: none; }
         .btn { background: var(--accent-color); color: #0f172a; font-weight: bold; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-size: 1rem; margin-top: 10px; }
-        .btn-sub { background: rgba(255,255,255,0.1); color: white; font-size: 0.8rem; padding: 10px; margin-top: 10px; border: none; border-radius: 8px; cursor: pointer; width: 100%; }
-        .btn-add-q { background: var(--secondary-accent); color: white; margin-bottom: 20px; font-size: 0.9rem; }
         .grid-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .grid-item {
-            background: rgba(255,255,255,0.05); padding: 15px 5px; border-radius: 10px; cursor: pointer;
-            font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .tab-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .grid-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; cursor: pointer; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-direction: column; }
         .tab-btn { flex: 1; padding: 12px; border-radius: 10px; cursor: pointer; background: rgba(0,0,0,0.3); color: #64748b; border: 1px solid transparent; }
         .tab-btn.active { background: rgba(251, 191, 36, 0.2); color: var(--accent-color); border-color: var(--accent-color); font-weight: bold; }
-        .comment-section { margin-top: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 12px; }
-        .comment-item { font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 0; text-align: left; }
-        .comment-user { color: var(--secondary-accent); font-weight: bold; margin-right: 8px; }
-        .comment-input-group { display: flex; gap: 5px; margin-top: 10px; }
-        .comment-input { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 6px; padding: 8px; font-size: 0.85rem; outline: none; }
-        .comment-btn { background: var(--secondary-accent); border: none; color: white; border-radius: 6px; padding: 0 15px; cursor: pointer; }
         .hidden { display: none; }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* 모달 스타일 */
-        .modal {
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
-            width: 100%; height: 100%; overflow: auto;
-            background-color: rgba(0,0,0,0.8);
-            justify-content: center; align-items: center;
-        }
-        .modal-content {
-            margin: auto; display: block; max-width: 90%; max-height: 90%;
-            border-radius: 10px;
-        }
-        .modal-close {
-            position: absolute; top: 20px; right: 35px; color: #f1f1f1;
-            font-size: 40px; font-weight: bold; transition: 0.3s; cursor: pointer;
-        }
-        .modal-close:hover, .modal-close:focus { color: #bbb; text-decoration: none; }
+        .result-img { width: 100%; border-radius: 12px; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
     <div id="snow-container"></div>
-    <div class="container fade-in">
+    <div class="container">
         <div id="page-login">
             <h1>2025 회고록</h1>
-            <p style="color: #94a3b8; margin-bottom: 30px;">함께 만드는 스트렝스 질문지</p>
-            <input type="text" id="username" placeholder="본인 이름을 입력하세요" style="width:100%; padding:15px; border-radius:12px; border:none; background:var(--input-bg); color:white; font-size:1.2rem; text-align:center; box-sizing:border-box; outline:none; border: 1px solid rgba(251,191,36,0.3);">
-            
-            <div class="profile-upload-area" style="margin-top: 20px;">
-                <img id="profile-preview" src="https://via.placeholder.com/100/303a4c/e2e8f0?text=+" alt="프로필 사진" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color);">
-                <div class="file-upload-wrapper">
-                    <span>프로필 사진 업로드</span>
-                    <input type="file" id="profile-image-upload" accept="image/*" onchange="uploadProfileImage(event)">
-                </div>
-                <span id="profile-upload-status" class="upload-status"></span>
-            </div>
-            
-            <button class="btn" onclick="checkUser()">입장하기</button>
+            <img id="my-profile-preview" src="https://via.placeholder.com/100" class="profile-img-main">
+            <label class="img-upload-btn">📷 얼굴 사진 업로드 <input type="file" style="display:none;" onchange="uploadProfile(this)"></label>
+            <input type="text" id="username" placeholder="본인 이름을 입력하세요" style="width:100%; padding:15px; border-radius:12px; border:none; background:var(--input-bg); color:white; font-size:1.2rem; text-align:center; box-sizing:border-box; margin-top:20px;">
+            <button class="btn" onclick="checkUser()">회고 시작하기</button>
         </div>
 
         <div id="page-quiz" class="hidden">
             <h2 id="display-name"></h2>
             <div id="quiz-container"></div>
-            <button class="btn btn-add-q" onclick="addNewQuestionPrompt()">+ 새 질문 추가하기</button>
-            <button class="btn" onclick="saveToFirebase()">저장하고 결과 보기</button>
+            <button class="btn" onclick="addNewQuestion()">+ 새 질문 만들기</button>
+            <button class="btn" onclick="saveAll()">저장하고 결과 보기</button>
         </div>
 
         <div id="page-dashboard" class="hidden">
             <h2>모두의 2025년</h2>
-            <div class="tab-container">
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
                 <div class="tab-btn active" id="tab-person" onclick="switchTab('person')">사람별</div>
                 <div class="tab-btn" id="tab-question" onclick="switchTab('question')">문항별</div>
             </div>
             <div id="menu-person" class="grid-menu"></div>
-            <div id="menu-question" class="hidden"></div>
-            <button class="btn-sub" onclick="changePage('page-quiz')">내 답변 수정/질문 추가</button>
+            <div id="menu-question" class="grid-menu hidden"></div>
+            <button class="btn" style="background:#475569; color:white;" onclick="changePage('page-quiz')">내 답변 수정하기</button>
         </div>
 
         <div id="page-detail" class="hidden">
             <h3 id="detail-title"></h3>
-            <div id="detail-content-list"></div>
-            <button class="btn-sub" onclick="changePage('page-dashboard')">뒤로 가기</button>
+            <div id="detail-list"></div>
+            <button class="btn" onclick="changePage('page-dashboard')">목록으로 돌아가기</button>
         </div>
-    </div>
-
-    <div id="image-modal" class="modal">
-        <span class="modal-close" onclick="closeModal()">&times;</span>
-        <img class="modal-content" id="modal-image">
     </div>
 
     <script>
@@ -177,314 +82,154 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const storage = firebase.storage(); // Firebase Storage 초기화
+        const storage = firebase.storage();
 
         const members = ["경빈", "민욱", "왕근", "재규", "정민", "무철", "재호", "건욱", "한슬", "국영", "병선"];
-        const defaultQuestions = [
-            "올해 가장 좋았던 카페", "올해의 best 소비", "올해의 worst 소비", "가장 자주 들은 올해의 노래",
-            "올해 가장 인상 깊었던 영화", "올해 가장 인상 깊었던 책 혹은 구절", "올해의 선물 (가장 감동 받은 선물)",
-            "이번 연도의 가장 큰 도전", "반면에 이번 연도에 실패한 것", "2025년 중 한순간으로 돌아간다면?",
-            "이번 연도에 만난 새로운 인연", "올해 먹었던 것 중 가장 맛있었던 것은?", "올해 나의 가장 큰 고민",
-            "나 자신이 작년에 비해 변화한 점", "올해 가장 힘들었던 순간 / 극복 방법", "올해 눈물을 흘린 적이 있었다면?",
-            "올해 찍은 사진 중 마음에 드는 것", "올해 새로 발견한 취미나 관심사", "올해 나에게 큰 영향을 준 인물",
-            "올해 느꼈던 감사한 일 3가지", "올해 내가 가장 빠진 밈 / 콘텐츠", "올해 나를 위해 한 가장 큰 투자",
-            "올해의 소확행", "올해 가장 기억에 남는 순간", "올해 깨달은 교훈", "아, 이건 하길 잘했다!",
-            "내년에는 꼭 이루고 싶은 것", "올해를 한 문장으로 표현한다면?", "2025년의 나에게 칭찬 한 마디",
-            "2026년의 나에게 해주고 싶은 말"
-        ];
-        
         let currentUser = "";
-        let currentQuestions = [];
-        let currentProfileImageUrl = ""; // 현재 로그인하려는 유저의 프로필 이미지 URL
+        let questions = [];
+        let profileImg = "";
 
-        function createSnow() {
-            const container = document.getElementById('snow-container');
-            for(let i=0; i<30; i++){
-                const snow = document.createElement('div');
-                snow.className = 'snowflake'; snow.innerHTML = '❄';
-                snow.style.left = Math.random() * 100 + 'vw';
-                snow.style.animationDuration = (Math.random() * 3 + 5) + 's';
-                snow.style.opacity = Math.random();
-                container.appendChild(snow);
-            }
-        }
-        createSnow();
-
-        // 프로필 사진 업로드
-        async function uploadProfileImage(event) {
-            const file = event.target.files[0];
+        // 프로필 업로드
+        function uploadProfile(input) {
+            const file = input.files[0];
             if (!file) return;
-
-            const uploadStatus = document.getElementById('profile-upload-status');
-            uploadStatus.textContent = '업로드 중...';
-
-            const storageRef = storage.ref(`profile_images/${currentUser}_${file.name}`);
-            try {
-                await storageRef.put(file);
-                const downloadURL = await storageRef.getDownloadURL();
-                document.getElementById('profile-preview').src = downloadURL;
-                currentProfileImageUrl = downloadURL; // 업로드된 URL 저장
-                db.ref(`profiles/${currentUser}/imageUrl`).set(downloadURL); // DB에 URL 저장
-                uploadStatus.textContent = '업로드 완료!';
-            } catch (error) {
-                console.error("프로필 이미지 업로드 실패:", error);
-                uploadStatus.textContent = '업로드 실패 ㅠㅠ';
-            }
+            const ref = storage.ref(`profiles/${file.name}_${Date.now()}`);
+            ref.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
+                profileImg = url;
+                document.getElementById('my-profile-preview').src = url;
+                alert("프로필 사진 설정 완료!");
+            });
         }
 
-        // 특정 유저의 프로필 이미지 가져오기
-        async function getProfileImageUrl(username) {
-            const snapshot = await db.ref(`profiles/${username}/imageUrl`).once('value');
-            return snapshot.val() || 'https://via.placeholder.com/100/303a4c/e2e8f0?text=+'; // 기본 이미지
+        // 답변 사진 업로드
+        function uploadAnswerImg(input, index) {
+            const file = input.files[0];
+            if (!file) return;
+            const ref = storage.ref(`answers/${currentUser}_${index}_${Date.now()}`);
+            ref.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
+                document.getElementById(`preview-${index}`).src = url;
+                document.getElementById(`preview-${index}`).classList.remove('hidden');
+                document.getElementById(`url-${index}`).value = url;
+            });
         }
 
-        async function checkUser() {
+        function checkUser() {
             const name = document.getElementById('username').value.trim();
-            if(members.includes(name)) {
-                currentUser = name;
-                document.getElementById('display-name').innerText = currentUser + "님의 회고";
-                
-                // 로그인 시 프로필 이미지 로드
-                currentProfileImageUrl = await getProfileImageUrl(currentUser);
-                document.getElementById('profile-preview').src = currentProfileImageUrl;
-
-                syncQuestions(async () => {
-                    const snapshot = await db.ref('reviews/' + currentUser).once('value');
-                    if(snapshot.exists()) {
-                        initDashboard();
-                        changePage('page-dashboard');
-                    } else {
-                        renderQuiz();
-                        changePage('page-quiz');
-                    }
-                });
-            } else { alert("멤버 이름을 확인해주세요!"); }
-        }
-
-        // 질문 리스트 동기화 (Firebase에서 가져오기)
-        function syncQuestions(callback) {
+            if(!members.includes(name)) return alert("멤버 이름을 입력하세요.");
+            currentUser = name;
+            if(profileImg) db.ref('profiles/' + currentUser).set(profileImg);
+            
             db.ref('settings/questions').once('value', snapshot => {
-                if(!snapshot.exists()) {
-                    db.ref('settings/questions').set(defaultQuestions);
-                    currentQuestions = defaultQuestions;
-                } else {
-                    currentQuestions = snapshot.val();
-                }
-                if(callback) callback();
+                questions = snapshot.val() || ["올해의 기억"];
+                renderQuiz();
+                db.ref('reviews/' + currentUser).once('value', s => {
+                    if(s.exists()) changePage('page-dashboard');
+                    else changePage('page-quiz');
+                });
             });
         }
 
-        async function renderQuiz() {
+        function renderQuiz() {
             const container = document.getElementById('quiz-container');
-            container.innerHTML = "데이터 로딩 중...";
-            
-            const savedSnapshot = await db.ref('reviews/' + currentUser).once('value');
-            const saved = savedSnapshot.val() || {};
-            
             container.innerHTML = "";
-            for (let i = 0; i < currentQuestions.length; i++) {
-                const q = currentQuestions[i];
-                const savedText = saved[i]?.text || "";
-                const savedImageUrl = saved[i]?.imageUrl || "";
-
-                container.innerHTML += `
-                    <div class="question-card">
-                        <label class="question-label">${i+1}. ${q}</label>
-                        <textarea id="ans-text-${i}">${savedText}</textarea>
-                        
-                        <div class="file-upload-wrapper">
-                            <span>사진 첨부</span>
-                            <input type="file" id="ans-file-${i}" accept="image/*" onchange="uploadAnswerImage(event, ${i})">
-                        </div>
-                        <span id="ans-upload-status-${i}" class="upload-status">
-                            ${savedImageUrl ? '업로드된 파일: <img src="' + savedImageUrl + '" class="uploaded-img-preview" onclick="openModal(\'' + savedImageUrl + '\')">' : ''}
-                        </span>
-                    </div>`;
-            }
-        }
-
-        // 답변 이미지 업로드
-        async function uploadAnswerImage(event, qIndex) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const uploadStatusSpan = document.getElementById(`ans-upload-status-${qIndex}`);
-            uploadStatusSpan.innerHTML = '업로드 중...';
-
-            const storageRef = storage.ref(`answer_images/${currentUser}/${qIndex}_${file.name}`);
-            try {
-                await storageRef.put(file);
-                const downloadURL = await storageRef.ref.getDownloadURL();
-                
-                // 이미지 미리보기 업데이트
-                uploadStatusSpan.innerHTML = `업로드된 파일: <img src="${downloadURL}" class="uploaded-img-preview" onclick="openModal('${downloadURL}')">`;
-                
-                // 답변 데이터에 이미지 URL 저장 (텍스트와 함께)
-                const currentAnswer = (await db.ref(`reviews/${currentUser}/${qIndex}`).once('value')).val() || {};
-                db.ref(`reviews/${currentUser}/${qIndex}`).update({
-                    text: currentAnswer.text || document.getElementById(`ans-text-${qIndex}`).value,
-                    imageUrl: downloadURL
+            db.ref('reviews/' + currentUser).once('value', snapshot => {
+                const saved = snapshot.val() || {};
+                questions.forEach((q, i) => {
+                    const ans = saved[i] || {text: "", img: ""};
+                    container.innerHTML += `
+                        <div class="question-card">
+                            <label class="question-label">${i+1}. ${q}</label>
+                            <textarea id="ans-${i}">${ans.text}</textarea>
+                            <label class="img-upload-btn">📷 사진 첨부 <input type="file" style="display:none;" onchange="uploadAnswerImg(this, ${i})"></label>
+                            <input type="hidden" id="url-${i}" value="${ans.img}">
+                            <img src="${ans.img || ''}" id="preview-${i}" class="img-preview-small ${ans.img ? '' : 'hidden'}" onclick="window.open(this.src)">
+                        </div>`;
                 });
-            } catch (error) {
-                console.error("답변 이미지 업로드 실패:", error);
-                uploadStatusSpan.textContent = '업로드 실패 ㅠㅠ';
-            }
-        }
-
-        function addNewQuestionPrompt() {
-            const newQ = prompt("새로운 질문을 입력해주세요! (추가하면 모든 멤버가 답변할 수 있게 됩니다)");
-            if(newQ && newQ.trim()) {
-                currentQuestions.push(newQ.trim());
-                db.ref('settings/questions').set(currentQuestions).then(() => {
-                    alert("새 질문이 추가되었습니다!");
-                    renderQuiz();
-                });
-            }
-        }
-
-        async function saveToFirebase() {
-            const updates = {};
-            for (let i = 0; i < currentQuestions.length; i++) {
-                const text = document.getElementById(`ans-text-${i}`).value;
-                const existingData = (await db.ref(`reviews/${currentUser}/${i}`).once('value')).val() || {};
-                updates[i] = { text: text, imageUrl: existingData.imageUrl || null };
-            }
-            db.ref('reviews/' + currentUser).set(updates).then(() => {
-                alert("성공적으로 저장되었습니다!");
-                initDashboard();
-                changePage('page-dashboard');
             });
         }
 
-        async function initDashboard() {
-            await syncQuestions(); // 최신 질문 리스트 동기화
-            
+        function addNewQuestion() {
+            const newQ = prompt("새로운 질문을 입력하세요:");
+            if(!newQ) return;
+            questions.push(newQ);
+            db.ref('settings/questions').set(questions);
+            renderQuiz();
+        }
+
+        function saveAll() {
+            const data = {};
+            questions.forEach((_, i) => {
+                data[i] = {
+                    text: document.getElementById(`ans-${i}`).value,
+                    img: document.getElementById(`url-${i}`).value
+                };
+            });
+            db.ref('reviews/' + currentUser).set(data);
+            alert("저장되었습니다!");
+            initDashboard();
+            changePage('page-dashboard');
+        }
+
+        function initDashboard() {
             const pMenu = document.getElementById('menu-person');
             pMenu.innerHTML = "";
-            for (const m of members) {
-                const profileImgUrl = await getProfileImageUrl(m);
-                const item = document.createElement('div');
-                item.className = 'grid-item';
-                item.innerHTML = `<img src="${profileImgUrl}" class="profile-img-thumb"><span>${m}</span>`;
-                item.onclick = () => showDetailByPerson(m);
-                pMenu.appendChild(item);
-            }
+            members.forEach(m => {
+                db.ref('profiles/' + m).once('value', s => {
+                    const img = s.val() || 'https://via.placeholder.com/50';
+                    pMenu.innerHTML += `<div class="grid-item" onclick="showDetail('${m}')"><img src="${img}" class="profile-img-thumb"> ${m}</div>`;
+                });
+            });
 
             const qMenu = document.getElementById('menu-question');
             qMenu.innerHTML = "";
-            currentQuestions.forEach((q, i) => {
-                const item = document.createElement('div');
-                item.className = 'grid-item';
-                item.style.gridColumn = "span 3";
-                item.style.justifyContent = "flex-start"; // 왼쪽 정렬
-                item.innerText = (i+1) + ". " + q;
-                item.onclick = () => showDetailByQuestion(i);
-                qMenu.appendChild(item);
+            questions.forEach((q, i) => {
+                qMenu.innerHTML += `<div class="grid-item" style="grid-column:span 3; align-items:flex-start;" onclick="showQDetail(${i})">${i+1}. ${q}</div>`;
             });
         }
 
-        async function showDetailByPerson(member) {
-            const dataSnapshot = await db.ref('reviews/' + member).once('value');
-            const data = dataSnapshot.val();
-            const container = document.getElementById('detail-content-list');
-            document.getElementById('detail-title').innerText = member + "님의 기록";
-            container.innerHTML = "";
-            if(!data) {
-                container.innerHTML = "<p style='padding:40px;'>아직 작성하지 않았습니다.</p>";
-            } else {
-                for (let i = 0; i < currentQuestions.length; i++) {
-                    const q = currentQuestions[i];
-                    const answerData = data[i] || {};
-                    const text = answerData.text || "-";
-                    const imageUrl = answerData.imageUrl || null;
-
-                    const imageHtml = imageUrl ? 
-                        `<img src="${imageUrl}" class="uploaded-image-display" onclick="openModal('${imageUrl}')">` : '';
-
-                    const qCard = document.createElement('div');
-                    qCard.className = 'question-card';
-                    qCard.innerHTML = `
-                        <div style="color:var(--accent-color); font-size:0.85rem; margin-bottom:8px;">Q${i+1}. ${q}</div>
-                        <div style="font-size:1.1rem; line-height:1.6; white-space:pre-wrap;">${text}</div>
-                        ${imageHtml}
-                        <div class="comment-section" id="comments-${member}-${i}"></div>`;
-                    container.appendChild(qCard);
-                    loadComments(member, i);
-                }
-            }
-            changePage('page-detail');
-        }
-
-        function loadComments(member, qIdx) {
-            const cSection = document.getElementById(`comments-${member}-${qIdx}`);
-            db.ref(`comments/${member}/${qIdx}`).on('value', snapshot => {
-                let html = '';
-                snapshot.forEach(child => {
-                    const c = child.val();
-                    html += `<div class="comment-item"><span class="comment-user">${c.user}</span>${c.text}</div>`;
+        function showDetail(name) {
+            document.getElementById('detail-title').innerText = name + "님의 2025년";
+            const container = document.getElementById('detail-list');
+            container.innerHTML = "로딩 중...";
+            db.ref('reviews/' + name).once('value', snapshot => {
+                const data = snapshot.val();
+                container.innerHTML = "";
+                questions.forEach((q, i) => {
+                    const item = data ? data[i] : null;
+                    container.innerHTML += `
+                        <div class="question-card">
+                            <p style="color:var(--accent-color); font-size:0.8rem;">Q. ${q}</p>
+                            <p style="white-space:pre-wrap;">${item ? item.text : "미작성"}</p>
+                            ${item && item.img ? `<img src="${item.img}" class="result-img" onclick="window.open(this.src)">` : ""}
+                        </div>`;
                 });
-                html += `<div class="comment-input-group">
-                    <input type="text" class="comment-input" id="input-${member}-${qIdx}" placeholder="댓글...">
-                    <button class="comment-btn" onclick="addComment('${member}', ${qIdx})">전송</button>
-                </div>`;
-                cSection.innerHTML = html;
+                changePage('page-detail');
             });
-        }
-
-        function addComment(targetMember, qIdx) {
-            const input = document.getElementById(`input-${targetMember}-${qIdx}`);
-            if(!input.value.trim()) return;
-            db.ref(`comments/${targetMember}/${qIdx}`).push({ user: currentUser, text: input.value });
-            input.value = "";
-        }
-
-        async function showDetailByQuestion(qIdx) {
-            const container = document.getElementById('detail-content-list');
-            document.getElementById('detail-title').innerText = (qIdx+1) + ". " + currentQuestions[qIdx];
-            container.innerHTML = "";
-            for (const m of members) {
-                const dataSnapshot = await db.ref('reviews/' + m).once('value');
-                const data = dataSnapshot.val();
-                const answerData = data && data[qIdx] ? data[qIdx] : {};
-                const ansText = answerData.text || "미작성";
-                const ansImageUrl = answerData.imageUrl || null;
-
-                const imageHtml = ansImageUrl ? 
-                    `<img src="${ansImageUrl}" class="uploaded-image-display" onclick="openModal('${ansImageUrl}')">` : '';
-
-                container.innerHTML += `
-                    <div class="question-card">
-                        <div class="question-label" style="color:var(--secondary-accent)">${m}</div>
-                        <div style="white-space:pre-wrap;">${ansText}</div>
-                        ${imageHtml}
-                    </div>`;
-            }
-            changePage('page-detail');
         }
 
         function switchTab(mode) {
-            document.getElementById('tab-person').classList.toggle('active', mode==='person');
-            document.getElementById('tab-question').classList.toggle('active', mode==='question');
-            document.getElementById('menu-person').classList.toggle('hidden', mode!=='person');
-            document.getElementById('menu-question').classList.toggle('hidden', mode!=='question');
-            if(mode === 'question') initDashboard(); // 문항별 탭 누를 때 최신 질문 리스트 갱신
+            document.getElementById('menu-person').classList.toggle('hidden', mode !== 'person');
+            document.getElementById('menu-question').classList.toggle('hidden', mode !== 'question');
+            document.getElementById('tab-person').classList.toggle('active', mode === 'person');
+            document.getElementById('tab-question').classList.toggle('active', mode === 'question');
+            if(mode === 'person' || mode === 'question') initDashboard();
         }
 
-        async function changePage(id) {
-            if(id === 'page-quiz') {
-                await syncQuestions();
-                renderQuiz();
-            } else if (id === 'page-login') {
-                document.getElementById('username').value = ""; // 로그인 페이지로 돌아갈 때 이름 초기화
-                document.getElementById('profile-preview').src = 'https://via.placeholder.com/100/303a4c/e2e8f0?text=+';
-                document.getElementById('profile-upload-status').textContent = '';
-            }
+        function changePage(id) {
             ['page-login', 'page-quiz', 'page-dashboard', 'page-detail'].forEach(p => document.getElementById(p).classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             window.scrollTo(0,0);
         }
 
-        // --- 이미지 모달 관련 함수 ---
-        function openModal(imageUrl) {
-            const modal = document.getElementById('image-modal');
-            const modalImage = document.getElementById('modal-image
+        // 눈 내리는 효과
+        const snow = document.getElementById('snow-container');
+        for(let i=0; i<20; i++) {
+            const s = document.createElement('div');
+            s.className = 'snowflake'; s.innerText = '❄';
+            s.style.left = Math.random() * 100 + 'vw';
+            s.style.animationDuration = (Math.random() * 3 + 4) + 's';
+            snow.appendChild(s);
+        }
+    </script>
+</body>
+</html>
