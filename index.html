@@ -83,40 +83,29 @@
         let questions = [];
         let profileImgBase64 = "";
 
-        // 이미지 압축 및 Base64 변환 함수 (핵심!)
         function processImage(input, target) {
             const file = input.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    
-                    // 최대 해상도 제한 (용량 줄이기)
+                    let width = img.width; let height = img.height;
                     const max_size = 400; 
                     if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } }
                     else { if (height > max_size) { width *= max_size / height; height = max_size; } }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
+                    canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // 압축률 0.6 정도로 설정하여 용량 최소화
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
-                    
                     if(target === 'profile') {
                         profileImgBase64 = dataUrl;
                         document.getElementById('my-profile-preview').src = dataUrl;
                     } else {
-                        const idx = target;
-                        document.getElementById(`preview-${idx}`).src = dataUrl;
-                        document.getElementById(`preview-${idx}`).classList.remove('hidden');
-                        document.getElementById(`url-${idx}`).value = dataUrl;
+                        document.getElementById(`preview-${target}`).src = dataUrl;
+                        document.getElementById(`preview-${target}`).classList.remove('hidden');
+                        document.getElementById(`url-${target}`).value = dataUrl;
                     }
                 };
                 img.src = e.target.result;
@@ -128,18 +117,22 @@
             const name = document.getElementById('username').value.trim();
             if(!members.includes(name)) return alert("멤버 이름을 정확히 입력하세요.");
             currentUser = name;
-            
-            // 프로필 사진이 있으면 저장
             if(profileImgBase64) db.ref('profiles/' + currentUser).set(profileImgBase64);
             
             db.ref('settings/questions').once('value', snapshot => {
                 questions = snapshot.val() || ["올해의 소감"];
-                renderQuiz();
                 db.ref('reviews/' + currentUser).once('value', s => {
-                    if(s.exists()) changePage('page-dashboard');
-                    else changePage('page-quiz');
+                    if(s.exists()) { initDashboard(); changePage('page-dashboard'); }
+                    else { renderQuiz(); changePage('page-quiz'); }
                 });
             });
+        }
+
+        // 호환성 체크 함수: 데이터가 객체인지 문자열인지 확인
+        function getSafeData(data) {
+            if (!data) return { text: "", img: "" };
+            if (typeof data === 'string') return { text: data, img: "" };
+            return { text: data.text || "", img: data.img || "" };
         }
 
         function renderQuiz() {
@@ -149,13 +142,13 @@
                 const saved = snapshot.val() || {};
                 container.innerHTML = "";
                 questions.forEach((q, i) => {
-                    const ans = saved[i] || {text: "", img: ""};
+                    const ans = getSafeData(saved[i]);
                     container.innerHTML += `
                         <div class="question-card">
                             <label class="question-label">${i+1}. ${q}</label>
                             <textarea id="ans-${i}">${ans.text}</textarea>
                             <label class="img-upload-btn">📷 사진 첨부 <input type="file" accept="image/*" style="display:none;" onchange="processImage(this, ${i})"></label>
-                            <input type="hidden" id="url-${i}" value="${ans.img || ''}">
+                            <input type="hidden" id="url-${i}" value="${ans.img}">
                             <img src="${ans.img || ''}" id="preview-${i}" class="img-preview-small ${ans.img ? '' : 'hidden'}" onclick="window.open(this.src)">
                         </div>`;
                 });
@@ -206,15 +199,15 @@
             const container = document.getElementById('detail-list');
             container.innerHTML = "로딩 중...";
             db.ref('reviews/' + name).once('value', snapshot => {
-                const data = snapshot.val();
+                const data = snapshot.val() || {};
                 container.innerHTML = "";
                 questions.forEach((q, i) => {
-                    const item = data ? data[i] : null;
+                    const item = getSafeData(data[i]);
                     container.innerHTML += `
                         <div class="question-card">
                             <p style="color:var(--accent-color); font-size:0.8rem;">Q. ${q}</p>
-                            <p style="white-space:pre-wrap;">${item ? item.text : "미작성"}</p>
-                            ${item && item.img ? `<img src="${item.img}" class="result-img" onclick="window.open(this.src)">` : ""}
+                            <p style="white-space:pre-wrap;">${item.text || "미작성"}</p>
+                            ${item.img ? `<img src="${item.img}" class="result-img" onclick="window.open(this.src)">` : ""}
                         </div>`;
                 });
                 changePage('page-detail');
@@ -230,12 +223,12 @@
         }
 
         function changePage(id) {
+            if(id === 'page-quiz') renderQuiz();
             ['page-login', 'page-quiz', 'page-dashboard', 'page-detail'].forEach(p => document.getElementById(p).classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             window.scrollTo(0,0);
         }
 
-        // 눈 내리는 효과
         const snow = document.getElementById('snow-container');
         for(let i=0; i<15; i++) {
             const s = document.createElement('div');
