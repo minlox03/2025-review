@@ -6,7 +6,6 @@
     <title>2025 스트렝스모임 회고록</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
         :root { --bg-color: #0f172a; --card-bg: rgba(30, 41, 59, 0.85); --text-color: #e2e8f0; --accent-color: #fbbf24; --secondary-accent: #38bdf8; --input-bg: rgba(0, 0, 0, 0.4); }
@@ -14,21 +13,17 @@
         .snowflake { position: fixed; top: -10px; color: #fff; pointer-events: none; animation: fall linear infinite; z-index: 1; }
         @keyframes fall { to { transform: translateY(110vh); } }
         .container { width: 95%; max-width: 600px; background: var(--card-bg); backdrop-filter: blur(20px); padding: 30px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); z-index: 10; text-align: center; margin: 40px 10px; position: relative; }
-        
-        /* 사진 업로드 버튼 스타일 */
         .img-upload-btn { background: rgba(255,255,255,0.1); border: 1px dashed rgba(255,255,255,0.3); color: white; padding: 8px; border-radius: 8px; cursor: pointer; display: inline-block; margin-top: 10px; font-size: 0.8rem; }
         .img-preview-small { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-top: 10px; cursor: pointer; border: 1px solid var(--accent-color); }
         .profile-img-main { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-color); margin: 20px auto; display: block; background: #334155; }
         .profile-img-thumb { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; margin-right: 10px; border: 1px solid var(--accent-color); }
-        
-        /* 나머지 스타일 */
         .question-card { background: rgba(0,0,0,0.25); padding: 18px; border-radius: 15px; margin-bottom: 20px; text-align: left; border: 1px solid rgba(255,255,255,0.05); }
         .question-label { display: block; margin-bottom: 10px; font-weight: bold; color: #f1f5f9; }
         textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: var(--input-bg); color: white; font-size: 1rem; box-sizing: border-box; outline: none; min-height: 80px; resize: none; }
         .btn { background: var(--accent-color); color: #0f172a; font-weight: bold; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-size: 1rem; margin-top: 10px; }
         .grid-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
         .grid-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; cursor: pointer; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .tab-btn { flex: 1; padding: 12px; border-radius: 10px; cursor: pointer; background: rgba(0,0,0,0.3); color: #64748b; border: 1px solid transparent; }
+        .tab-btn { flex: 1; padding: 12px; border-radius: 10px; cursor: pointer; background: rgba(0,0,0,0.3); color: #64748b; border: 1px solid transparent; text-align: center; }
         .tab-btn.active { background: rgba(251, 191, 36, 0.2); color: var(--accent-color); border-color: var(--accent-color); font-weight: bold; }
         .hidden { display: none; }
         .result-img { width: 100%; border-radius: 12px; margin-top: 10px; cursor: pointer; }
@@ -40,8 +35,8 @@
         <div id="page-login">
             <h1>2025 회고록</h1>
             <img id="my-profile-preview" src="https://via.placeholder.com/100" class="profile-img-main">
-            <label class="img-upload-btn">📷 얼굴 사진 업로드 <input type="file" style="display:none;" onchange="uploadProfile(this)"></label>
-            <input type="text" id="username" placeholder="본인 이름을 입력하세요" style="width:100%; padding:15px; border-radius:12px; border:none; background:var(--input-bg); color:white; font-size:1.2rem; text-align:center; box-sizing:border-box; margin-top:20px;">
+            <label class="img-upload-btn">📷 내 사진 업로드 (선택) <input type="file" accept="image/*" style="display:none;" onchange="processImage(this, 'profile')"></label>
+            <input type="text" id="username" placeholder="이름을 입력하세요" style="width:100%; padding:15px; border-radius:12px; border:none; background:var(--input-bg); color:white; font-size:1.2rem; text-align:center; box-sizing:border-box; margin-top:20px;">
             <button class="btn" onclick="checkUser()">회고 시작하기</button>
         </div>
 
@@ -82,45 +77,63 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const storage = firebase.storage();
 
         const members = ["경빈", "민욱", "왕근", "재규", "정민", "무철", "재호", "건욱", "한슬", "국영", "병선"];
         let currentUser = "";
         let questions = [];
-        let profileImg = "";
+        let profileImgBase64 = "";
 
-        // 프로필 업로드
-        function uploadProfile(input) {
+        // 이미지 압축 및 Base64 변환 함수 (핵심!)
+        function processImage(input, target) {
             const file = input.files[0];
             if (!file) return;
-            const ref = storage.ref(`profiles/${file.name}_${Date.now()}`);
-            ref.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
-                profileImg = url;
-                document.getElementById('my-profile-preview').src = url;
-                alert("프로필 사진 설정 완료!");
-            });
-        }
 
-        // 답변 사진 업로드
-        function uploadAnswerImg(input, index) {
-            const file = input.files[0];
-            if (!file) return;
-            const ref = storage.ref(`answers/${currentUser}_${index}_${Date.now()}`);
-            ref.put(file).then(snapshot => snapshot.ref.getDownloadURL()).then(url => {
-                document.getElementById(`preview-${index}`).src = url;
-                document.getElementById(`preview-${index}`).classList.remove('hidden');
-                document.getElementById(`url-${index}`).value = url;
-            });
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // 최대 해상도 제한 (용량 줄이기)
+                    const max_size = 400; 
+                    if (width > height) { if (width > max_size) { height *= max_size / width; width = max_size; } }
+                    else { if (height > max_size) { width *= max_size / height; height = max_size; } }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // 압축률 0.6 정도로 설정하여 용량 최소화
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                    
+                    if(target === 'profile') {
+                        profileImgBase64 = dataUrl;
+                        document.getElementById('my-profile-preview').src = dataUrl;
+                    } else {
+                        const idx = target;
+                        document.getElementById(`preview-${idx}`).src = dataUrl;
+                        document.getElementById(`preview-${idx}`).classList.remove('hidden');
+                        document.getElementById(`url-${idx}`).value = dataUrl;
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         }
 
         function checkUser() {
             const name = document.getElementById('username').value.trim();
-            if(!members.includes(name)) return alert("멤버 이름을 입력하세요.");
+            if(!members.includes(name)) return alert("멤버 이름을 정확히 입력하세요.");
             currentUser = name;
-            if(profileImg) db.ref('profiles/' + currentUser).set(profileImg);
+            
+            // 프로필 사진이 있으면 저장
+            if(profileImgBase64) db.ref('profiles/' + currentUser).set(profileImgBase64);
             
             db.ref('settings/questions').once('value', snapshot => {
-                questions = snapshot.val() || ["올해의 기억"];
+                questions = snapshot.val() || ["올해의 소감"];
                 renderQuiz();
                 db.ref('reviews/' + currentUser).once('value', s => {
                     if(s.exists()) changePage('page-dashboard');
@@ -131,17 +144,18 @@
 
         function renderQuiz() {
             const container = document.getElementById('quiz-container');
-            container.innerHTML = "";
+            container.innerHTML = "로딩 중...";
             db.ref('reviews/' + currentUser).once('value', snapshot => {
                 const saved = snapshot.val() || {};
+                container.innerHTML = "";
                 questions.forEach((q, i) => {
                     const ans = saved[i] || {text: "", img: ""};
                     container.innerHTML += `
                         <div class="question-card">
                             <label class="question-label">${i+1}. ${q}</label>
                             <textarea id="ans-${i}">${ans.text}</textarea>
-                            <label class="img-upload-btn">📷 사진 첨부 <input type="file" style="display:none;" onchange="uploadAnswerImg(this, ${i})"></label>
-                            <input type="hidden" id="url-${i}" value="${ans.img}">
+                            <label class="img-upload-btn">📷 사진 첨부 <input type="file" accept="image/*" style="display:none;" onchange="processImage(this, ${i})"></label>
+                            <input type="hidden" id="url-${i}" value="${ans.img || ''}">
                             <img src="${ans.img || ''}" id="preview-${i}" class="img-preview-small ${ans.img ? '' : 'hidden'}" onclick="window.open(this.src)">
                         </div>`;
                 });
@@ -223,7 +237,7 @@
 
         // 눈 내리는 효과
         const snow = document.getElementById('snow-container');
-        for(let i=0; i<20; i++) {
+        for(let i=0; i<15; i++) {
             const s = document.createElement('div');
             s.className = 'snowflake'; s.innerText = '❄';
             s.style.left = Math.random() * 100 + 'vw';
